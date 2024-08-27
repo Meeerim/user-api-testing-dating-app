@@ -20,11 +20,10 @@ public class ApiClient {
 }
 
 
-    public Response getUserByGenderFemale(String gender) {
+    public Response getUser() {
         return RestAssured
                 .given()
-                .queryParam("female", gender)
                 .when()
-                .get("/api/test/users");
+                .get(BASE_URI);
     }
 }

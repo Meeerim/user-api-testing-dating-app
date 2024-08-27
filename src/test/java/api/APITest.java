@@ -9,6 +9,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.security.cert.CertificateRevokedException;
+
 public class APITest {
 
     private ApiClient apiClient;
@@ -18,7 +20,7 @@ public class APITest {
         apiClient = new ApiClient();
     }
 
-    @Test
+    @Test(groups = {"positive"})
     @Description("Проверка получения списка пользователей по полу gender = male")
     @Severity(SeverityLevel.CRITICAL)
     public void testGetUserByGenderMale() {
@@ -30,7 +32,7 @@ public class APITest {
         response.then().assertThat().body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/getUserGender.json"));
     }
 
-    @Test
+    @Test(groups = {"positive"})
     @Description("Проверка получения списка пользователей по полу gender = female")
     @Severity(SeverityLevel.CRITICAL)
     public void testGetUserByGenderFemale() {
@@ -42,7 +44,7 @@ public class APITest {
         response.then().assertThat().body(JsonSchemaValidator.matchesJsonSchemaInClasspath("schemas/getUserGender.json"));
     }
 
-    @Test
+    @Test(groups = {"negative"})
     @Description("Проверка обработки некорректного значения параметра gender")
     @Severity(SeverityLevel.CRITICAL)
     public void testGetUserByGenderWithIncorrectValue(){
@@ -51,7 +53,16 @@ public class APITest {
         String responseBody = response.getBody().asString();
         System.out.println("Response Body: " + responseBody);
         Assert.assertTrue(responseBody.contains("error"), "Response body does not contain expected error message");
+    }
 
+    @Test(groups = {"negative"})
+    @Description("Проверка обработки запроса без параметра gender")
+    @Severity(SeverityLevel.CRITICAL)
+    public void testGetUserWithoutGenderParameter(){
+        Response response = apiClient.getUser();
+        Assert.assertEquals(response.getStatusCode(),400,"Status code is not 400");
+        String responseBody = response.getBody().asString();
+        Assert.assertTrue(responseBody.contains("Required String parameter 'gender' is not present"));
     }
 }
 
